@@ -34,8 +34,8 @@ func handleOut(lout net.Listener){
 func defStream(cdef net.Conn,overlconn *net.Conn) {
 	for {
 		if *overlconn==nil {
-			tmpbuf = make([]byte, S_TMPBUF)
-			n, err := cdef.Read(tmpbuf)
+			tmpbuf := make([]byte, S_TMPBUF)
+			_, err := cdef.Read(tmpbuf) //n
 			if err != nil {
 				return //prob. req. program end
 			}
@@ -52,8 +52,8 @@ func defStream(cdef net.Conn,overlconn *net.Conn) {
 
 func ovrlStream(covr net.Conn) {
 	for {
-		tmpbuf = make([]byte, S_TMPBUF)
-		n, err := covr.Read(tmpbuf)
+		tmpbuf := make([]byte, S_TMPBUF)
+		_, err := covr.Read(tmpbuf) //n
 		if err != nil {
 			covr.Close()
 			covr=nil
