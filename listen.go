@@ -42,7 +42,7 @@ func defStream(cdef net.Conn,overlconn *net.Conn) {
 			for i:=0;i<len(outs);i++ {
 				_ ,err = outs[i].Write(tmpbuf)
 				if err != nil {
-					ftm.Println("Conn write err",err)	
+					fmt.Println("Conn write err",err)	
 				}
 			}
 		}	
@@ -62,7 +62,7 @@ func ovrlStream(covr net.Conn) {
 		for i:=0;i<len(outs);i++ {
 			_ ,err = outs[i].Write(tmpbuf)
 			if err != nil {
-				ftm.Println("Conn write err",err)	
+				fmt.Println("Conn write err",err)	
 			}
 		}	
 	}
@@ -129,7 +129,7 @@ func main() {
 	
 	defconn:=conn
 	conn=nil
-	go defStream(defconn, dout, &conn)
+	go defStream(defconn, &conn)
 
 	for {
 		var conn2 net.Conn
