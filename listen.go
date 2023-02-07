@@ -19,8 +19,8 @@ var outs []net.Conn //:=make(net.Conn,0) //maybe later handle with a stream copy
 
 func handleOut(lout net.Listener){
 	for {
-		conn, err = lout.Accept()
-		outs=append(v,conn)
+		conn, err := lout.Accept()
+		outs=append(outs,conn)
 		if err != nil {
 			fmt.Println("accept error:", err.Error())
 		}
