@@ -9,7 +9,7 @@ import (
 
 const S_TMPBUF=1024
 
-outs:=make(net.Conn,0) //maybe later handle with a stream copy socket, e.g. every (in/listen) output conn just (go routined) stream copies from a real output socket
+var outs []net.Conn //:=make(net.Conn,0) //maybe later handle with a stream copy socket, e.g. every (in/listen) output conn just (go routined) stream copies from a real output socket
 //"real out" = dial it, an out connection, instead of listener
 //a real out socket would be created from another program
 //we would need to pass this info to our program (maybe another socket :-))
