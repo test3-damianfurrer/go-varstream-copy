@@ -55,60 +55,60 @@ func echoServer(c net.Conn) {
 }
 
 func main() {
-    mydir, err := os.Getwd()
-    if err != nil {
-        fmt.Println("Can't get Current Directory",err.Error())
+	mydir, err := os.Getwd()
+	if err != nil {
+		fmt.Println("Can't get Current Directory",err.Error())
 		return
-    }
+	}
 
-    SockAddr:=mydir + "/default.in.sock"
-    if err := os.RemoveAll(SockAddr); err != nil {
-        panic(err)
-    }
-    ldef, err := net.Listen("unix", SockAddr)
-    if err != nil {
-        fmt.Println("listen error:",err.Error())
-    }
-    defer ldef.Close()
+	SockAddr:=mydir + "/default.in.sock"
+	if err := os.RemoveAll(SockAddr); err != nil {
+		panic(err)
+	}
+	ldef, err := net.Listen("unix", SockAddr)
+	if err != nil {
+		fmt.Println("listen error:",err.Error())
+	}
+	defer ldef.Close()
 
-    SockAddr:=mydir + "/overlay.in.sock"
-    if err := os.RemoveAll(SockAddr); err != nil {
-        panic(err)
-    }
-    lovr, err := net.Listen("unix", SockAddr)
-    if err != nil {
-        fmt.Println("listen error:",err.Error())
-    }
-    defer lovr.Close()
+	SockAddr=mydir + "/overlay.in.sock"
+	if err := os.RemoveAll(SockAddr); err != nil {
+		panic(err)
+	}
+	lovr, err := net.Listen("unix", SockAddr)
+	if err != nil {
+		fmt.Println("listen error:",err.Error())
+	}
+	defer lovr.Close()
 
-    SockAddr:=mydir + "/out.sock"
-    if err := os.RemoveAll(SockAddr); err != nil {
-        panic(err)
-    }
-    dout, err := net.Dial("unix", SockAddr)
-    if err != nil {
-        fmt.Println("failed to create output socket,  error:",err.Error())
-	return
-    }
-    defer dout.Close()
+	SockAddr=mydir + "/out.sock"
+	if err := os.RemoveAll(SockAddr); err != nil {
+		panic(err)
+	}
+	dout, err := net.Dial("unix", SockAddr)
+	if err != nil {
+		fmt.Println("failed to create output socket,  error:",err.Error())
+		return
+	}
+	defer dout.Close()
 
-    conn, err := ldef.Accept()
-    if err != nil {
-       fmt.Println("DEFAULT IN: accept error:", err.Error())
-	return
-    }
-    defconn:=conn
-    conn=nil
-    go defStream(defconn, dout, &conn)
-
-    for {
-        conn, err = lovr.Accept()
-        if err != nil {
-            fmt.Println("accept error:", err.Error())
-        }
-	//while conn alive copy data
-	conn.Close()
+	conn, err := ldef.Accept()
+	if err != nil {
+		fmt.Println("DEFAULT IN: accept error:", err.Error())
+		return
+	}
+	defconn:=conn
 	conn=nil
-        //go echoServer(conn)
-    }
+	go defStream(defconn, dout, &conn)
+
+	for {
+		conn, err = lovr.Accept()
+		if err != nil {
+		fmt.Println("accept error:", err.Error())
+		}
+		//while conn alive copy data
+		conn.Close()
+		conn=nil
+		//go echoServer(conn)
+	}
 }
