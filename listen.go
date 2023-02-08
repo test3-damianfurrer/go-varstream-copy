@@ -4,111 +4,152 @@ import (
     "fmt"
     "os"
 	"net"
-//	"io"
+	//"io"
 )
 
-func defStream(c net.Conn,out net.Conn,overlconn *net.Conn) {
- //while overlconn == nil -> copy c to out
+
+var cinput net.Conn
+var coutput net.Conn
+var coverride net.Conn
+var started=false
+const S_TMPBUF=1
+
+func gohandleListener(l net.Listener, ptrc *net.Conn){
+	for {
+		if *ptrc == nil {
+			conn, err := l.Accept()
+			//started=true
+			if err == nil {
+				*ptrc = conn
+				fmt.Println("got conn")
+			}
+		}
+	}
 }
 
-func echoServer(c net.Conn) {
-    fmt.Printf("Client connected [%s]\n", c.RemoteAddr().Network())
-    fmt.Println("addr",c.RemoteAddr())
-    //io.Copy(c, c)
-	for{
-		databuf := make([]byte,0)
-		tmpbuf := make([]byte, 1)
-		
-		for {
-			_, err := c.Read(tmpbuf)
-			if err != nil {
-				if err.Error() != "EOF"{
-					fmt.Println("READ ERR",err.Error())
-				} else {
-					fmt.Println("Client Connection Closed",err.Error())
-				}
-				c.Close()
-				return
-					
+func gohandleReplaceListener(l net.Listener, ptrc *net.Conn){
+	for {
+		conn, err := l.Accept()
+		if err == nil {
+			if *ptrc != nil {
+				(*ptrc).Close()
 			}
-			//fmt.Println("byte",tmpbuf[0])
-			if tmpbuf[0] == '\n' {
-				databuf = append(databuf,'\n')
-				break
-			}
-			if tmpbuf[0] == 0 {
-				databuf = append(databuf,'\n')
-				break
-			}
-			if tmpbuf[0] == 10 {
-				databuf = append(databuf,'\n')
-				break
-			}
-			databuf = append(databuf,tmpbuf[0])
+			*ptrc = conn
+			fmt.Println("got new conn")
 		}
-		fmt.Printf("Received: %s",databuf)
-		c.Write([]byte{'Y','o','u',' ','s','e','n','t',':',' '})
-		c.Write(databuf)
 	}
-    c.Close()
-    fmt.Println("Connection Closed")
 }
+
+func handleOut(){
+	for {
+		if cinput != nil && coutput != nil {
+			started=true
+			//io.Copy(conn,cin) //maybe handle diffrently
+			tmpbuf:=make([]byte,S_TMPBUF)
+			dobreak:=false
+			var err error
+			for {
+				if coverride != nil{
+					_, err = cinput.Read(tmpbuf) //continue default stream read 
+					if err != nil {
+						cinput.Close()
+						cinput=nil
+						fmt.Println("Input Closed")
+						dobreak=true
+						err=nil
+					}
+					_, err = coverride.Read(tmpbuf)
+					if err != nil {
+						coverride.Close()
+						coverride=nil
+						fmt.Println("Override Closed")
+						dobreak=true
+						err=nil
+					}
+				} else {
+					_, err = cinput.Read(tmpbuf)
+					if err != nil {
+						cinput.Close()
+						cinput=nil
+						fmt.Println("Input Closed")
+						dobreak=true
+						err=nil
+					}
+				}
+				_, err = coutput.Write(tmpbuf)
+				if err != nil {
+					coutput.Close()
+					coutput=nil
+					fmt.Println("Output Closed")
+					dobreak=true
+					err=nil
+				}
+				if dobreak {
+					break
+				}
+
+			}
+			//cin.Close()
+			//return
+		}
+		if cinput == nil && coutput == nil && started {
+			return
+		}
+	}
+}
+
+
 
 func main() {
-    mydir, err := os.Getwd()
-    if err != nil {
-        fmt.Println("Can't get Current Directory",err.Error())
+	
+	cinput=nil
+	coutput=nil
+	coverride=nil
+	
+	mydir, err := os.Getwd()
+	if err != nil {
+		fmt.Println("Can't get Current Directory",err.Error())
 		return
-    }
+	}
 
-    SockAddr:=mydir + "/default.in.sock"
-    if err := os.RemoveAll(SockAddr); err != nil {
-        panic(err)
-    }
-    ldef, err := net.Listen("unix", SockAddr)
-    if err != nil {
-        fmt.Println("listen error:",err.Error())
-    }
-    defer ldef.Close()
+	SockAddr:=mydir + "/default.in.sock"
+	if err := os.RemoveAll(SockAddr); err != nil {
+		panic(err)
+	}
+	ldef, err := net.Listen("unix", SockAddr)
+	if err != nil {
+		fmt.Println("listen error:",err.Error())
+	}
+	defer ldef.Close()
 
-    SockAddr:=mydir + "/overlay.in.sock"
-    if err := os.RemoveAll(SockAddr); err != nil {
-        panic(err)
-    }
-    lovr, err := net.Listen("unix", SockAddr)
-    if err != nil {
-        fmt.Println("listen error:",err.Error())
-    }
-    defer lovr.Close()
+	SockAddr=mydir + "/out.sock"
+	if err := os.RemoveAll(SockAddr); err != nil {
+		panic(err)
+	}
+	lout, err := net.Listen("unix", SockAddr)
+	if err != nil {
+		fmt.Println("listen error:",err.Error())
+	}
+	defer lout.Close()
+	SockAddr=mydir + "/overlay.in.sock"
+	if err := os.RemoveAll(SockAddr); err != nil {
+		panic(err)
+	}
+	lovr, err := net.Listen("unix", SockAddr)
+	if err != nil {
+		fmt.Println("listen error:",err.Error())
+	}
+	defer lovr.Close()
 
-    SockAddr:=mydir + "/out.sock"
-    if err := os.RemoveAll(SockAddr); err != nil {
-        panic(err)
-    }
-    dout, err := net.Dial("unix", SockAddr)
-    if err != nil {
-        fmt.Println("failed to create output socket,  error:",err.Error())
-	return
-    }
-    defer dout.Close()
 
-    conn, err := ldef.Accept()
-    if err != nil {
-       fmt.Println("DEFAULT IN: accept error:", err.Error())
-	return
-    }
-    defconn:=conn
-    conn=nil
-    go defStream(defconn, dout, &conn)
-
-    for {
-        conn, err = lovr.Accept()
-        if err != nil {
-            fmt.Println("accept error:", err.Error())
-        }
-	//while conn alive copy data
-	conn.Close()
-	conn=nil
-        //go echoServer(conn)
-    }
+	go gohandleListener(ldef,&cinput)
+	go gohandleListener(lout,&coutput)
+	go gohandleReplaceListener(lovr,&coverride)
+	
+	
+	handleOut()
+	fmt.Println("exit")
+	os.RemoveAll(mydir + "/default.in.sock")
+	os.RemoveAll(mydir + "/overlay.in.sock")
+	os.RemoveAll(mydir + "/out.sock")
 }
