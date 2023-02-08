@@ -106,8 +106,11 @@ func main() {
 	coutput=nil
 	coverride=nil
 	
-	test := os.Args[1]
-	fmt.Println("arg 1",test)
+	prefix=""
+	if len(os.Args) >= 2 {
+		prefix = os.Args[1]+"-"
+	}
+	fmt.Println("prefix",prefix)
 	
 	mydir, err := os.Getwd()
 	if err != nil {
