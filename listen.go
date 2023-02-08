@@ -34,7 +34,7 @@ func handleOut(){
 					cinput.Close()
 					cinput=nil
 				}
-				_, err := coutput.Write(tmpbuf)
+				_, err = coutput.Write(tmpbuf)
 				if err != nil {
 					coutput.Close()
 					coutput=nil
