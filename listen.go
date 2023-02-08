@@ -31,19 +31,23 @@ func handleOut(){
 			started=true
 			//io.Copy(conn,cin) //maybe handle diffrently
 			tmpbuf:=make([]byte,1)
+			dobreak:=false
 			for {
 				_, err := cinput.Read(tmpbuf)
 				if err != nil {
 					cinput.Close()
 					cinput=nil
 					fmt.Println("Input Closed")
-					break
+					dobreak=true
 				}
 				_, err = coutput.Write(tmpbuf)
 				if err != nil {
 					coutput.Close()
 					coutput=nil
 					fmt.Println("Output Closed")
+					dobreak=true
+				}
+				if dobreak {
 					break
 				}
 
