@@ -106,6 +106,9 @@ func main() {
 	coutput=nil
 	coverride=nil
 	
+	test := os.Args[0]
+	fmt.Println("arg 0",test)
+	
 	mydir, err := os.Getwd()
 	if err != nil {
 		fmt.Println("Can't get Current Directory",err.Error())
