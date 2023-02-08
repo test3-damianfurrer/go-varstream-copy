@@ -30,8 +30,10 @@ func gohandleListener(l net.Listener, ptrc *net.Conn){
 func gohandleReplaceListener(l net.Listener, ptrc *net.Conn){
 	for {
 		conn, err := l.Accept()
-		*ptrc = conn
-		fmt.Println("got new conn")
+		if err == nil {
+			*ptrc = conn
+			fmt.Println("got new conn")
+		}
 	}
 }
 
