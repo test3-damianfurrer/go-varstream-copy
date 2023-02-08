@@ -33,8 +33,8 @@ func handleOut(){
 			//io.Copy(conn,cin) //maybe handle diffrently
 			tmpbuf:=make([]byte,1)
 			dobreak:=false
+			var err error
 			for {
-				var err error
 				if coverride != nil{
 					_, err = cinput.Read(tmpbuf) //continue default stream read 
 					if err != nil {
@@ -42,6 +42,7 @@ func handleOut(){
 						cinput=nil
 						fmt.Println("Input Closed")
 						dobreak=true
+						err=nil
 					}
 					_, err = coverride.Read(tmpbuf)
 					if err != nil {
@@ -49,6 +50,7 @@ func handleOut(){
 						coverride=nil
 						fmt.Println("Override Closed")
 						dobreak=true
+						err=nil
 					}
 				} else {
 					_, err = cinput.Read(tmpbuf)
@@ -57,6 +59,7 @@ func handleOut(){
 						cinput=nil
 						fmt.Println("Input Closed")
 						dobreak=true
+						err=nil
 					}
 				}
 				_, err = coutput.Write(tmpbuf)
@@ -65,6 +68,7 @@ func handleOut(){
 					coutput=nil
 					fmt.Println("Output Closed")
 					dobreak=true
+					err=nil
 				}
 				if dobreak {
 					break
