@@ -12,6 +12,7 @@ var cinput net.Conn
 var coutput net.Conn
 var coverride net.Conn
 var started=false
+var prefix=""
 const S_TMPBUF=1
 
 func gohandleListener(l net.Listener, ptrc *net.Conn){
@@ -21,7 +22,7 @@ func gohandleListener(l net.Listener, ptrc *net.Conn){
 			//started=true
 			if err == nil {
 				*ptrc = conn
-				fmt.Println("got conn")
+				fmt.Println(prefix+"got conn")
 			}
 		}
 	}
@@ -35,7 +36,7 @@ func gohandleReplaceListener(l net.Listener, ptrc *net.Conn){
 				(*ptrc).Close()
 			}
 			*ptrc = conn
-			fmt.Println("got new conn")
+			fmt.Println(prefix+"got new conn")
 		}
 	}
 }
@@ -54,7 +55,7 @@ func handleOut(){
 					if err != nil {
 						cinput.Close()
 						cinput=nil
-						fmt.Println("Input Closed")
+						fmt.Println(prefix+"Input Closed")
 						dobreak=true
 						err=nil
 					}
@@ -62,7 +63,7 @@ func handleOut(){
 					if err != nil {
 						coverride.Close()
 						coverride=nil
-						fmt.Println("Override Closed")
+						fmt.Println(prefix+"Override Closed")
 						dobreak=true
 						err=nil
 					}
@@ -71,7 +72,7 @@ func handleOut(){
 					if err != nil {
 						cinput.Close()
 						cinput=nil
-						fmt.Println("Input Closed")
+						fmt.Println(prefix+"Input Closed")
 						dobreak=true
 						err=nil
 					}
@@ -80,7 +81,7 @@ func handleOut(){
 				if err != nil {
 					coutput.Close()
 					coutput=nil
-					fmt.Println("Output Closed")
+					fmt.Println(prefix+"Output Closed")
 					dobreak=true
 					err=nil
 				}
@@ -101,7 +102,7 @@ func handleOut(){
 
 
 func main() {
-	prefix:=""
+	
 	cinput=nil
 	coutput=nil
 	coverride=nil
