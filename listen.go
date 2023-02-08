@@ -4,7 +4,7 @@ import (
     "fmt"
     "os"
 	"net"
-	"io"
+	//"io"
 )
 
 
@@ -27,7 +27,7 @@ func handleOut(){
 	for {
 		if cinput != nil && coutput != nil {
 			//io.Copy(conn,cin) //maybe handle diffrently
-			tmpbuf=make([]byte,1)
+			tmpbuf:=make([]byte,1)
 			for {
 				_, err := cinput.Read(tmpbuf)
 				if err != nil {
