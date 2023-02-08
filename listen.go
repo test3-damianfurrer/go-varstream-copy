@@ -106,7 +106,7 @@ func main() {
 	coutput=nil
 	coverride=nil
 	
-	prefix=""
+	prefix:=""
 	if len(os.Args) >= 2 {
 		prefix = os.Args[1]+"-"
 	}
