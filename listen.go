@@ -27,6 +27,14 @@ func gohandleListener(l net.Listener, ptrc *net.Conn){
 	}
 }
 
+func gohandleReplaceListener(l net.Listener, ptrc *net.Conn){
+	for {
+		conn, err := l.Accept()
+		*ptrc = conn
+		fmt.Println("got new conn")
+	}
+}
+
 func handleOut(){
 	for {
 		if cinput != nil && coutput != nil {
@@ -131,7 +139,7 @@ func main() {
 
 	go gohandleListener(ldef,&cinput)
 	go gohandleListener(lout,&coutput)
-	go gohandleListener(lovr,&coverride)
+	go gohandleReplaceListener(lovr,&coverride)
 	
 	
 	handleOut()
