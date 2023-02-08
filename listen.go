@@ -12,7 +12,7 @@ var cinput net.Conn
 var coutput net.Conn
 var coverride net.Conn
 var started=false
-const S_TMPBUF=1024
+const S_TMPBUF=1
 
 func gohandleListener(l net.Listener, ptrc *net.Conn){
 	for {
