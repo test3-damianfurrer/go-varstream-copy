@@ -10,6 +10,7 @@ import (
 
 var cinput net.Conn
 var coutput net.Conn
+var coverride net.Conn
 var started=false
 
 func gohandleListener(l net.Listener, ptrc *net.Conn){
@@ -33,12 +34,29 @@ func handleOut(){
 			tmpbuf:=make([]byte,1)
 			dobreak:=false
 			for {
-				_, err := cinput.Read(tmpbuf)
-				if err != nil {
-					cinput.Close()
-					cinput=nil
-					fmt.Println("Input Closed")
-					dobreak=true
+				if coverride != nil{
+					_, err := cinput.Read(tmpbuf) //continue default stream read 
+					if err != nil {
+						cinput.Close()
+						cinput=nil
+						fmt.Println("Input Closed")
+						dobreak=true
+					}
+					_, err := coverride.Read(tmpbuf)
+					if err != nil {
+						coverride.Close()
+						coverride=nil
+						fmt.Println("Override Closed")
+						dobreak=true
+					}
+				} else {
+					_, err := cinput.Read(tmpbuf)
+					if err != nil {
+						cinput.Close()
+						cinput=nil
+						fmt.Println("Input Closed")
+						dobreak=true
+					}
 				}
 				_, err = coutput.Write(tmpbuf)
 				if err != nil {
@@ -67,6 +85,7 @@ func main() {
 	
 	cinput=nil
 	coutput=nil
+	coverride=nil
 	
 	mydir, err := os.Getwd()
 	if err != nil {
@@ -93,13 +112,25 @@ func main() {
 		fmt.Println("listen error:",err.Error())
 	}
 	defer lout.Close()
+	SockAddr=mydir + "/overlay.in.sock"
+	if err := os.RemoveAll(SockAddr); err != nil {
+		panic(err)
+	}
+	lovr, err := net.Listen("unix", SockAddr)
+	if err != nil {
+		fmt.Println("listen error:",err.Error())
+	}
+	defer lovr.Close()
 
 
 	go gohandleListener(ldef,&cinput)
 	go gohandleListener(lout,&coutput)
+	go gohandleListener(lovr,&coverride)
+	
 	
 	handleOut()
 	fmt.Println("exit")
 	os.RemoveAll(mydir + "/default.in.sock")
+	os.RemoveAll(mydir + "/overlay.in.sock")
 	os.RemoveAll(mydir + "/out.sock")
 }
