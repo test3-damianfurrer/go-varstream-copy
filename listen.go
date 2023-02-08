@@ -10,11 +10,12 @@ import (
 func handleOut(lout net.Listener,cin net.Conn){
 	for {
 		conn, err := lout.Accept()
+		fmt.Println("got out conn")
 		if err != nil {
 			panic(err)
 		}
-		io.Copy(conn,cin)
-		cin.Close()
+		io.Copy(conn,cin) //maybe handle diffrently
+		//cin.Close()
 		return
 	}
 }
@@ -51,7 +52,7 @@ func main() {
 	defer lout.Close()
 
 	
-	
+	for{
 	fmt.Println("Expecting default Socket to get stream")
 	conn, err := ldef.Accept()
 	if err != nil {
@@ -59,5 +60,10 @@ func main() {
 		return
 	}
 	//go
+	fmt.Println("handle out")
 	handleOut(lout,conn)
+	}
+	fmt.Println("exit")
+	os.RemoveAll(mydir + "/default.in.sock")
+	os.RemoveAll(mydir + "/out.sock")
 }
