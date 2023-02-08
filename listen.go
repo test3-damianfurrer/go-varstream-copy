@@ -101,16 +101,17 @@ func handleOut(){
 
 
 func main() {
-	
+	prefix:=""
 	cinput=nil
 	coutput=nil
 	coverride=nil
 	
-	prefix:=""
+	
 	if len(os.Args) >= 2 {
 		prefix = os.Args[1]+"-"
+		fmt.Println("custom prefix:",prefix)
 	}
-	fmt.Println("prefix",prefix)
+	
 	
 	mydir, err := os.Getwd()
 	if err != nil {
@@ -118,7 +119,7 @@ func main() {
 		return
 	}
 
-	SockAddr:=mydir + "/default.in.sock"
+	SockAddr:=mydir + "/"+prefix+"default.in.sock"
 	if err := os.RemoveAll(SockAddr); err != nil {
 		panic(err)
 	}
@@ -128,7 +129,7 @@ func main() {
 	}
 	defer ldef.Close()
 
-	SockAddr=mydir + "/out.sock"
+	SockAddr=mydir + "/"+prefix+"out.sock"
 	if err := os.RemoveAll(SockAddr); err != nil {
 		panic(err)
 	}
@@ -137,7 +138,7 @@ func main() {
 		fmt.Println("listen error:",err.Error())
 	}
 	defer lout.Close()
-	SockAddr=mydir + "/overlay.in.sock"
+	SockAddr=mydir + "/"+prefix+"overlay.in.sock"
 	if err := os.RemoveAll(SockAddr); err != nil {
 		panic(err)
 	}
@@ -155,7 +156,7 @@ func main() {
 	
 	handleOut()
 	fmt.Println("exit")
-	os.RemoveAll(mydir + "/default.in.sock")
-	os.RemoveAll(mydir + "/overlay.in.sock")
-	os.RemoveAll(mydir + "/out.sock")
+	os.RemoveAll(mydir + "/"+prefix+"default.in.sock")
+	os.RemoveAll(mydir + "/"+prefix+"overlay.in.sock")
+	os.RemoveAll(mydir + "/"+prefix+"out.sock")
 }
