@@ -57,6 +57,7 @@ func ovrlStream(covr net.Conn) {
 		if err != nil {
 			covr.Close()
 			covr=nil
+			fmt.Println("Closed Overlay Socket stream")
 			return
 		}
 		for i:=0;i<len(outs);i++ {
@@ -119,6 +120,7 @@ func main() {
 	}
 	defer lout.Close()
 
+	fmt.Println("Expecting default Socket to get stream")
 	conn, err := ldef.Accept()
 	if err != nil {
 		fmt.Println("DEFAULT IN: accept error:", err.Error())
@@ -126,6 +128,7 @@ func main() {
 	}
 	
 	go handleOut(lout)
+	fmt.Println("Out Socket available")
 	
 	defconn:=conn
 	conn=nil
@@ -134,6 +137,7 @@ func main() {
 	for {
 		var conn2 net.Conn
 		conn2, err = lovr.Accept()
+		fmt.Println("New Overlay Socket stream")
 		if err != nil {
 			fmt.Println("accept error:", err.Error())
 		}
