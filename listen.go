@@ -10,6 +10,9 @@ import (
 func handleOut(lout net.Listener,cin net.Conn){
 	for {
 		conn, err := lout.Accept()
+		if err != nil {
+			panic(err)
+		}
 		io.Copy(conn,cin)
 		cin.Close()
 		return
