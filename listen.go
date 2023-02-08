@@ -10,7 +10,7 @@ import (
 
 var cinput net.Conn
 var coutput net.Conn
-var started:=false
+var started=false
 
 func gohandleListener(l net.Listener, ptrc *net.Conn){
 	for {
