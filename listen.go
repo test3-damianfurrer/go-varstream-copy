@@ -16,7 +16,7 @@ func gohandleListener(l net.Listener, ptrc *net.Conn){
 	for {
 		if *ptrc == nil {
 			conn, err := l.Accept()
-			started=true
+			//started=true
 			if err == nil {
 				*ptrc = conn
 				fmt.Println("got conn")
@@ -28,6 +28,7 @@ func gohandleListener(l net.Listener, ptrc *net.Conn){
 func handleOut(){
 	for {
 		if cinput != nil && coutput != nil {
+			//started=true
 			//io.Copy(conn,cin) //maybe handle diffrently
 			tmpbuf:=make([]byte,1)
 			for {
@@ -35,11 +36,13 @@ func handleOut(){
 				if err != nil {
 					cinput.Close()
 					cinput=nil
+					fmt.Println("Input Closed")
 				}
 				_, err = coutput.Write(tmpbuf)
 				if err != nil {
 					coutput.Close()
 					coutput=nil
+					fmt.Println("Output Closed")
 				}
 
 			}
