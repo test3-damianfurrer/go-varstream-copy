@@ -106,8 +106,8 @@ func main() {
 	coutput=nil
 	coverride=nil
 	
-	test := os.Args[0]
-	fmt.Println("arg 0",test)
+	test := os.Args[1]
+	fmt.Println("arg 1",test)
 	
 	mydir, err := os.Getwd()
 	if err != nil {
