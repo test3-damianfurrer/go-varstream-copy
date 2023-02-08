@@ -37,12 +37,14 @@ func handleOut(){
 					cinput.Close()
 					cinput=nil
 					fmt.Println("Input Closed")
+					break
 				}
 				_, err = coutput.Write(tmpbuf)
 				if err != nil {
 					coutput.Close()
 					coutput=nil
 					fmt.Println("Output Closed")
+					break
 				}
 
 			}
