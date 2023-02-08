@@ -12,6 +12,7 @@ var cinput net.Conn
 var coutput net.Conn
 var coverride net.Conn
 var started=false
+const S_TMPBUF=1024
 
 func gohandleListener(l net.Listener, ptrc *net.Conn){
 	for {
@@ -31,7 +32,7 @@ func handleOut(){
 		if cinput != nil && coutput != nil {
 			started=true
 			//io.Copy(conn,cin) //maybe handle diffrently
-			tmpbuf:=make([]byte,1)
+			tmpbuf:=make([]byte,S_TMPBUF)
 			dobreak:=false
 			var err error
 			for {
