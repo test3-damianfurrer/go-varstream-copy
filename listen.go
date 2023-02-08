@@ -10,11 +10,13 @@ import (
 
 var cinput net.Conn
 var coutput net.Conn
+var started:=false
 
 func gohandleListener(l net.Listener, ptrc *net.Conn){
 	for {
 		if *ptrc == nil {
 			conn, err := l.Accept()
+			started=true
 			if err == nil {
 				*ptrc = conn
 				fmt.Println("got conn")
@@ -44,7 +46,7 @@ func handleOut(){
 			//cin.Close()
 			//return
 		}
-		if cinput == nil && coutput == nil {
+		if cinput == nil && coutput == nil && started {
 			return
 		}
 	}
