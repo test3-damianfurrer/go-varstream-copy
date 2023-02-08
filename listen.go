@@ -34,15 +34,16 @@ func handleOut(){
 			tmpbuf:=make([]byte,1)
 			dobreak:=false
 			for {
+				var err error
 				if coverride != nil{
-					_, err := cinput.Read(tmpbuf) //continue default stream read 
+					_, err = cinput.Read(tmpbuf) //continue default stream read 
 					if err != nil {
 						cinput.Close()
 						cinput=nil
 						fmt.Println("Input Closed")
 						dobreak=true
 					}
-					_, err := coverride.Read(tmpbuf)
+					_, err = coverride.Read(tmpbuf)
 					if err != nil {
 						coverride.Close()
 						coverride=nil
@@ -50,7 +51,7 @@ func handleOut(){
 						dobreak=true
 					}
 				} else {
-					_, err := cinput.Read(tmpbuf)
+					_, err = cinput.Read(tmpbuf)
 					if err != nil {
 						cinput.Close()
 						cinput=nil
