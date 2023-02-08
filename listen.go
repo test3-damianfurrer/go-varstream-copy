@@ -28,7 +28,7 @@ func gohandleListener(l net.Listener, ptrc *net.Conn){
 func handleOut(){
 	for {
 		if cinput != nil && coutput != nil {
-			//started=true
+			started=true
 			//io.Copy(conn,cin) //maybe handle diffrently
 			tmpbuf:=make([]byte,1)
 			for {
