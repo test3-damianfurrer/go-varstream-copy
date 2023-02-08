@@ -7,22 +7,56 @@ import (
 	"io"
 )
 
-func handleOut(lout net.Listener,cin net.Conn){
+
+var cinput net.Conn
+var coutput net.Conn
+
+func gohandleListener(l net.Listener, ptrc *net.Conn){
 	for {
-		conn, err := lout.Accept()
-		fmt.Println("got out conn")
-		if err != nil {
-			panic(err)
+		if *ptrc == nil {
+			conn, err := l.Accept()
+			if err == nil {
+				*ptrc = conn
+				fmt.Println("got conn")
+			}
 		}
-		io.Copy(conn,cin) //maybe handle diffrently
-		//cin.Close()
-		return
+	}
+}
+
+func handleOut(){
+	for {
+		if cinput != nil && coutput != nil {
+			//io.Copy(conn,cin) //maybe handle diffrently
+			tmpbuf=make([]byte,1)
+			for {
+				_, err := cinput.Read(tmpbuf)
+				if err != nil {
+					cinput.Close()
+					cinput=nil
+				}
+				_, err := coutput.Write(tmpbuf)
+				if err != nil {
+					coutput.Close()
+					coutput=nil
+				}
+
+			}
+			//cin.Close()
+			//return
+		}
+		if cinput == nil && coutput == nil {
+			return
+		}
 	}
 }
 
 
 
 func main() {
+	
+	cinput=nil
+	coutput=nil
+	
 	mydir, err := os.Getwd()
 	if err != nil {
 		fmt.Println("Can't get Current Directory",err.Error())
@@ -39,8 +73,6 @@ func main() {
 	}
 	defer ldef.Close()
 
-
-	
 	SockAddr=mydir + "/out.sock"
 	if err := os.RemoveAll(SockAddr); err != nil {
 		panic(err)
@@ -51,18 +83,11 @@ func main() {
 	}
 	defer lout.Close()
 
+
+	go gohandleListener(ldef,&cinput)
+	go gohandleListener(lout,&coutput)
 	
-	for{
-	fmt.Println("Expecting default Socket to get stream")
-	conn, err := ldef.Accept()
-	if err != nil {
-		fmt.Println("DEFAULT IN: accept error:", err.Error())
-		return
-	}
-	//go
-	fmt.Println("handle out")
-	handleOut(lout,conn)
-	}
+	handleOut()
 	fmt.Println("exit")
 	os.RemoveAll(mydir + "/default.in.sock")
 	os.RemoveAll(mydir + "/out.sock")
