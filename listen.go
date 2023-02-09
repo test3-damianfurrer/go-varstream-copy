@@ -119,8 +119,10 @@ func main() {
 	
 	
 	if len(os.Args) >= 2 {
-		prefix = os.Args[1]+"-"
-		fmt.Println("custom prefix:",prefix)
+		if os.Args[1] != "" {
+			prefix = os.Args[1]+"-"
+			fmt.Println("custom prefix:",prefix)
+		}
 		
 		if len(os.Args) >= 3 { //optional var buffer size
 			_, err := fmt.Sscanf(,os.Args[2],"%d",S_TMPBUF)
