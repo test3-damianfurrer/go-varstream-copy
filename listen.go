@@ -123,7 +123,7 @@ func main() {
 		fmt.Println("custom prefix:",prefix)
 		
 		if len(os.Args) >= 3 { //optional var buffer size
-			_, err := fmt.Sscanf("%d",os.Args[2],S_TMPBUF)
+			_, err := fmt.Sscanf(,os.Args[2],"%d",S_TMPBUF)
 			if err != nil {
 				panic(err)
 			}
