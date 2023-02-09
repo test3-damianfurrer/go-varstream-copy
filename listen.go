@@ -173,7 +173,8 @@ func main() {
 	defer lovr.Close()
 
 
-	go gohandleListener(ldef,&cinput)
+	//go gohandleListener(ldef,&cinput)
+	go gohandleReplaceListener(ldef,&cinput)
 	go gohandleListener(lout,&coutput)
 	go gohandleReplaceListener(lovr,&coverride)
 	
