@@ -13,7 +13,8 @@ var coutput net.Conn
 var coverride net.Conn
 var started=false
 var prefix=""
-const S_TMPBUF=1
+var S_TMPBUF=1
+var tmpbuf []byte
 
 func gohandleListener(l net.Listener, ptrc *net.Conn){
 	for {
@@ -46,7 +47,7 @@ func handleOut(){
 		if cinput != nil && coutput != nil {
 			started=true
 			//io.Copy(conn,cin) //maybe handle diffrently
-			tmpbuf:=make([]byte,S_TMPBUF)
+//			tmpbuf:=make([]byte,S_TMPBUF)
 			dobreak:=false
 			var err error
 			for {
@@ -120,8 +121,12 @@ func main() {
 	if len(os.Args) >= 2 {
 		prefix = os.Args[1]+"-"
 		fmt.Println("custom prefix:",prefix)
+		
+		if len(os.Args) >= 3 { //optional var buffer size
+			S_TMPBUF=fmt.Sscanf("%d",os.Args[2])
+		}
 	}
-	
+	tmpbuf=make([]byte,S_TMPBUF) //only alloc once
 	
 	mydir, err := os.Getwd()
 	if err != nil {
