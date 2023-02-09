@@ -123,7 +123,10 @@ func main() {
 		fmt.Println("custom prefix:",prefix)
 		
 		if len(os.Args) >= 3 { //optional var buffer size
-			S_TMPBUF=fmt.Sscanf("%d",os.Args[2])
+			_, err := fmt.Sscanf("%d",os.Args[2],S_TMPBUF)
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 	tmpbuf=make([]byte,S_TMPBUF) //only alloc once
