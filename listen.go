@@ -12,7 +12,9 @@ var cinput net.Conn
 var coutput net.Conn
 var coverride net.Conn
 var started=false
-const S_TMPBUF=1
+var prefix=""
+var S_TMPBUF=1
+var tmpbuf []byte
 
 func gohandleListener(l net.Listener, ptrc *net.Conn){
 	for {
@@ -21,7 +23,7 @@ func gohandleListener(l net.Listener, ptrc *net.Conn){
 			//started=true
 			if err == nil {
 				*ptrc = conn
-				fmt.Println("got conn")
+				fmt.Println(prefix+"got conn")
 			}
 		}
 	}
@@ -35,7 +37,7 @@ func gohandleReplaceListener(l net.Listener, ptrc *net.Conn){
 				(*ptrc).Close()
 			}
 			*ptrc = conn
-			fmt.Println("got new conn")
+			fmt.Println(prefix+"got new conn")
 		}
 	}
 }
@@ -45,7 +47,7 @@ func handleOut(){
 		if cinput != nil && coutput != nil {
 			started=true
 			//io.Copy(conn,cin) //maybe handle diffrently
-			tmpbuf:=make([]byte,S_TMPBUF)
+//			tmpbuf:=make([]byte,S_TMPBUF)
 			dobreak:=false
 			var err error
 			for {
@@ -54,7 +56,14 @@ func handleOut(){
 					if err != nil {
 						cinput.Close()
 						cinput=nil
-						fmt.Println("Input Closed")
+						fmt.Println(prefix+"Input Closed")
+						coutput.Close()
+						coutput=nil
+						fmt.Println(prefix+"Output Closed")
+						if coverride != nil {
+							coverride.Close()
+							coverride=nil
+						}
 						dobreak=true
 						err=nil
 					}
@@ -62,7 +71,7 @@ func handleOut(){
 					if err != nil {
 						coverride.Close()
 						coverride=nil
-						fmt.Println("Override Closed")
+						fmt.Println(prefix+"Override Closed")
 						dobreak=true
 						err=nil
 					}
@@ -71,7 +80,7 @@ func handleOut(){
 					if err != nil {
 						cinput.Close()
 						cinput=nil
-						fmt.Println("Input Closed")
+						fmt.Println(prefix+"Input Closed")
 						dobreak=true
 						err=nil
 					}
@@ -80,7 +89,13 @@ func handleOut(){
 				if err != nil {
 					coutput.Close()
 					coutput=nil
-					fmt.Println("Output Closed")
+					fmt.Println(prefix+"Output Closed")
+					if coverride != nil {
+						coverride.Close()
+						coverride=nil
+					}
+					cinput.Close()
+					cinput=nil
 					dobreak=true
 					err=nil
 				}
@@ -106,13 +121,29 @@ func main() {
 	coutput=nil
 	coverride=nil
 	
+	
+	if len(os.Args) >= 2 {
+		if os.Args[1] != "" {
+			prefix = os.Args[1]+"-"
+			fmt.Println("custom prefix:",prefix)
+		}
+		
+		if len(os.Args) >= 3 { //optional var buffer size
+			_, err := fmt.Sscanf(os.Args[2],"%d",&S_TMPBUF)
+			if err != nil {
+				panic(err)
+			}
+		}
+	}
+	tmpbuf=make([]byte,S_TMPBUF) //only alloc once
+	
 	mydir, err := os.Getwd()
 	if err != nil {
 		fmt.Println("Can't get Current Directory",err.Error())
 		return
 	}
 
-	SockAddr:=mydir + "/default.in.sock"
+	SockAddr:=mydir + "/"+prefix+"default.in.sock"
 	if err := os.RemoveAll(SockAddr); err != nil {
 		panic(err)
 	}
@@ -122,7 +153,7 @@ func main() {
 	}
 	defer ldef.Close()
 
-	SockAddr=mydir + "/out.sock"
+	SockAddr=mydir + "/"+prefix+"out.sock"
 	if err := os.RemoveAll(SockAddr); err != nil {
 		panic(err)
 	}
@@ -131,7 +162,7 @@ func main() {
 		fmt.Println("listen error:",err.Error())
 	}
 	defer lout.Close()
-	SockAddr=mydir + "/overlay.in.sock"
+	SockAddr=mydir + "/"+prefix+"overlay.in.sock"
 	if err := os.RemoveAll(SockAddr); err != nil {
 		panic(err)
 	}
@@ -149,7 +180,7 @@ func main() {
 	
 	handleOut()
 	fmt.Println("exit")
-	os.RemoveAll(mydir + "/default.in.sock")
-	os.RemoveAll(mydir + "/overlay.in.sock")
-	os.RemoveAll(mydir + "/out.sock")
+	os.RemoveAll(mydir + "/"+prefix+"default.in.sock")
+	os.RemoveAll(mydir + "/"+prefix+"overlay.in.sock")
+	os.RemoveAll(mydir + "/"+prefix+"out.sock")
 }
