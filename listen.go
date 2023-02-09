@@ -60,8 +60,10 @@ func handleOut(){
 						coutput.Close()
 						coutput=nil
 						fmt.Println(prefix+"Output Closed")
-						coverride.Close()
-						coverride=nil
+						if coverride != nil {
+							coverride.Close()
+							coverride=nil
+						}
 						dobreak=true
 						err=nil
 					}
@@ -88,8 +90,10 @@ func handleOut(){
 					coutput.Close()
 					coutput=nil
 					fmt.Println(prefix+"Output Closed")
-					coverride.Close()
-					coverride=nil
+					if coverride != nil {
+						coverride.Close()
+						coverride=nil
+					}
 					cinput.Close()
 					cinput=nil
 					dobreak=true
