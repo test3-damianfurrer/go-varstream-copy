@@ -31,7 +31,7 @@ func gohandleListener(l net.Listener, ptrc *net.Conn){
 	}
 }
 
-func goStreamWriter(*c net.Conn,ptrbuf *[]byte){
+func goStreamWriter(c *net.Conn,ptrbuf *[]byte){
 	l_buf:=make([]byte,0)
 	//l_tmpbuf:=make([]byte,0)
 	*ptrbuf=l_buf
