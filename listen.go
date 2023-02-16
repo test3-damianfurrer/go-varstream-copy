@@ -32,15 +32,15 @@ func gohandleListener(l net.Listener, ptrc *net.Conn){
 	}
 }
 
-func goStreamWriter(c *net.Conn,ptrbuf **[]byte){
+func goStreamWriter(c *net.Conn,ptrbuf *[]byte){
 	//l_buf:=make([]byte,0)
 	//l_tmpbuf:=make([]byte,0)
 	//(*ptrbuf)=&l_buf
 	//&
-	l_buf:=(*ptrbuf)
+	l_buf:=ptrbuf
 	for {
-		fmt.Println("writebuffer len", len((*l_buf)))
 		if (*c != nil) && (len(*l_buf)>=S_TMPBUF){
+			fmt.Println("writebuffer len", len((*l_buf)))
 			_,err := (*c).Write((*l_buf)[:S_TMPBUF-1])
 			readable=true
 			if err != nil {
@@ -86,7 +86,7 @@ func gohandleListenerMulti(l net.Listener, ptrcarr *[]net.Conn){
 				buf:=make([]byte,0)
 				outputbufs=append(outputbufs,&buf) //init buf for worker
 				*ptrcarr = append(*ptrcarr,conn)
-				go goStreamWriter(&(*ptrcarr)[i],&(outputbufs[i]))
+				go goStreamWriter(&(*ptrcarr)[i],outputbufs[i])
 				fmt.Println(prefix+"got new multi conn")
 			}
 			fmt.Println("after ptrarr len: ",len((*ptrcarr)))
@@ -135,7 +135,7 @@ func handleOut(){
 						}
 						cbuf:=outputbufs[i]
 						(*cbuf)=append((*cbuf),tmpbuf...)
-						fmt.Println("add tmpbuf to output index: ",i)
+						fmt.Println("add tmpbuf to output index: ",i,*(outputbufs[i]))
 						/*cout=coutputs[i]
 						_, err = cout.Write(tmpbuf)
 						if err != nil {
