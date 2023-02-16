@@ -11,6 +11,10 @@ import (
 var cinput net.Conn
 var cout net.Conn
 var coutputs []net.Conn
+var started=false
+var prefix=""
+var S_TMPBUF=1
+var tmpbuf []byte
 
 func gohandleListener(l net.Listener, ptrc *net.Conn){
 	for {
@@ -114,8 +118,7 @@ func main() {
 	
 	cinput=nil
 	coutputs=make([]net.Conn,0)
-	prefix := ""
-	started := false
+	tmpbuf=make([]byte,S_TMPBUF)
 	
 	if len(os.Args) >= 2 {
 		if os.Args[1] != "" {
