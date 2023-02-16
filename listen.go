@@ -35,8 +35,8 @@ func gohandleListenerMulti(l net.Listener, ptrcarr *[]net.Conn){
 		if err == nil {
 			dobreak:=false
 			for i:=0; i<len(*ptrcarr); i++ {
-				if *ptrcarr[i] == nil {
-					*ptrcarr[i] = conn
+				if (*ptrcarr)[i] == nil {
+					(*ptrcarr)[i] = conn
 					dobreak=true
 					break
 				}
@@ -64,7 +64,8 @@ func gohandleReplaceListener(l net.Listener, ptrc *net.Conn){
 
 func handleOut(){
 	for {
-		if cinput != nil && coutput != nil {
+		//if cinput != nil && coutput != nil {
+		if cinput != nil {
 			started=true
 			//io.Copy(conn,cin) //maybe handle diffrently
 //			tmpbuf:=make([]byte,S_TMPBUF)
