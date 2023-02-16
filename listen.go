@@ -81,6 +81,9 @@ func handleOut(){
 					err=nil
 				}
 				for i:=0; i<len(coutputs); i++ {
+					if coutputs[i] == nil {
+						continue
+					}
 					cout=coutputs[i]
 					_, err = cout.Write(tmpbuf)
 					if err != nil {
