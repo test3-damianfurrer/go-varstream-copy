@@ -39,7 +39,7 @@ func goStreamWriter(c *net.Conn,ptrbuf **[]byte){
 	//&
 	l_buf:=*(*ptrbuf)
 	for {
-		//fmt.Println("writebuffer len", len(l_buf))
+		fmt.Println("writebuffer len", len(l_buf),len(*(*ptrbuf)))
 		if (*c != nil) && (len(l_buf)>=S_TMPBUF){
 			_,err := (*c).Write(l_buf[:S_TMPBUF-1])
 			readable=true
@@ -48,6 +48,9 @@ func goStreamWriter(c *net.Conn,ptrbuf **[]byte){
 				*c=nil
 			}
 			l_buf=l_buf[S_TMPBUF:]
+		}
+		if (*c != nil) {
+			break
 		}
 	}
 }
