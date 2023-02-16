@@ -61,7 +61,8 @@ func gohandleListenerMulti(l net.Listener, ptrcarr *[]net.Conn){
 		//started=true
 		if err == nil {
 			dobreak:=false
-			for i:=0; i<len(*ptrcarr); i++ {
+			var i int
+			for i=0; i<len(*ptrcarr); i++ {
 				if (*ptrcarr)[i] == nil {
 					(*ptrcarr)[i] = conn
 					dobreak=true
