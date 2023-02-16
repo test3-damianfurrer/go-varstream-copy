@@ -49,7 +49,7 @@ func goStreamWriter(c *net.Conn,ptrbuf *[]byte){
 				*c=nil
 			}
 			*l_buf=(*l_buf)[S_TMPBUF:]
-			fmt.Println("leftover buf:",(*l_buf)[S_TMPBUF:])
+			fmt.Println("leftover buf:",(*l_buf))
 		}
 		if (*c == nil) {
 			break
