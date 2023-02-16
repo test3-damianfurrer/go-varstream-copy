@@ -16,6 +16,14 @@ var prefix=""
 var S_TMPBUF=1
 var tmpbuf []byte
 
+func nilnetconn(cptr *net.Conn){
+	if *cptr != nil {
+		fmt.Println("manual nil")
+		*cptr=nil
+		fmt.Println("manual nil aftr")
+	}
+}
+
 func gohandleListener(l net.Listener, ptrc *net.Conn){
 	for {
 		if *ptrc == nil {
@@ -55,14 +63,14 @@ func handleOut(){
 					_, err = cinput.Read(tmpbuf) //continue default stream read 
 					if err != nil {
 						cinput.Close()
-						cinput=nil
+						nilnetconn(&cinput)
 						fmt.Println(prefix+"Input Closed")
 						coutput.Close()
-						coutput=nil
+						nilnetconn(&coutput)
 						fmt.Println(prefix+"Output Closed")
 						if coverride != nil {
 							coverride.Close()
-							coverride=nil
+							nilnetconn(&coverride)
 						}
 						dobreak=true
 						err=nil
@@ -70,7 +78,7 @@ func handleOut(){
 					_, err = coverride.Read(tmpbuf)
 					if err != nil {
 						coverride.Close()
-						coverride=nil
+						nilnetconn(&coverride)
 						fmt.Println(prefix+"Override Closed")
 						dobreak=true
 						err=nil
@@ -79,7 +87,7 @@ func handleOut(){
 					_, err = cinput.Read(tmpbuf)
 					if err != nil {
 						cinput.Close()
-						cinput=nil
+						nilnetconn(&cinput)
 						fmt.Println(prefix+"Input Closed")
 						dobreak=true
 						err=nil
@@ -88,16 +96,15 @@ func handleOut(){
 				_, err = coutput.Write(tmpbuf)
 				if err != nil {
 					coutput.Close()
-					if coutput!=nil {
-						coutput=nil //errors
-					}
+					//coutput=nil //errors
+					nilnetconn(&coutput) //test
 					fmt.Println(prefix+"Output Closed")
 					if coverride != nil {
 						coverride.Close()
-						coverride=nil
+						nilnetconn(&coverride)
 					}
 					cinput.Close()
-					cinput=nil
+					nilnetconn(&cinput)
 					dobreak=true
 					err=nil
 				}
