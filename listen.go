@@ -33,9 +33,11 @@ func gohandleListener(l net.Listener, ptrc *net.Conn){
 }
 
 func goStreamWriter(c *net.Conn,ptrbuf **[]byte){
-	l_buf:=make([]byte,0)
+	//l_buf:=make([]byte,0)
 	//l_tmpbuf:=make([]byte,0)
-	(*ptrbuf)=&l_buf
+	//(*ptrbuf)=&l_buf
+	//&
+	l_buf:=*(*ptrbuf)
 	for {
 		//fmt.Println("writebuffer len", len(l_buf))
 		if (*c != nil) && (len(l_buf)>=S_TMPBUF){
