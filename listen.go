@@ -98,7 +98,7 @@ func handleOut(){
 		}
 		//if cinput == nil && coutput == nil && started {
 		if cinput == nil && started {
-			for i:=0, i<len(coutputs); i++{
+			for i:=0; i<len(coutputs); i++ {
 				if coutputs[i] != nil {
 					coutputs[i].Close()
 				}
