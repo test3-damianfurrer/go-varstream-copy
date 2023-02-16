@@ -17,6 +17,7 @@ var started=false
 var prefix=""
 var S_TMPBUF=1
 var tmpbuf []byte
+var readable:=true //to limit read speed to fastest write
 
 func gohandleListener(l net.Listener, ptrc *net.Conn){
 	for {
@@ -38,6 +39,7 @@ func goStreamWriter(c *net.Conn,ptrbuf *[]byte){
 	for {
 		if (*c != nil) && (len(l_buf)>S_TMPBUF){
 			_,err := (*c).Write(l_buf[:S_TMPBUF])
+			readable=true
 			if err != nil {
 				(*c).Close()
 				*c=nil
@@ -102,32 +104,37 @@ func handleOut(){
 			dobreak:=false
 			var err error
 			for {
-				_, err = cinput.Read(tmpbuf)
-				if err != nil {
-					cinput.Close()
-					cinput=nil
-					fmt.Println(prefix+"Input Closed")
-					dobreak=true
-					err=nil
-				}
-				for i:=0; i<len(coutputs); i++ {
-					if coutputs[i] == nil {
-						continue
-					}
-					cout=coutputs[i]
-					_, err = cout.Write(tmpbuf)
+				if readable {
+					_, err = cinput.Read(tmpbuf)
+					readable=false
 					if err != nil {
-						cout.Close()
-						fmt.Println(prefix+"Output Closed")
-						coutputs[i]=nil
-						//cinput.Close()
-						//cinput=nil
-						//dobreak=true
-						//err=nil
+						cinput.Close()
+						cinput=nil
+						fmt.Println(prefix+"Input Closed")
+						dobreak=true
+						err=nil
 					}
-				}
-				if dobreak {
-					break
+					for i:=0; i<len(coutputs); i++ {
+						if coutputs[i] == nil {
+							continue
+						}
+						cbuf:=outputbufs[i]
+						(*cbuf)=append((*cbuf),tmpbuf...)
+						/*cout=coutputs[i]
+						_, err = cout.Write(tmpbuf)
+						if err != nil {
+							cout.Close()
+							fmt.Println(prefix+"Output Closed")
+							coutputs[i]=nil
+							//cinput.Close()
+							//cinput=nil
+							//dobreak=true
+							//err=nil
+						}*/
+					}
+					if dobreak {
+						break
+					}
 				}
 
 			}
