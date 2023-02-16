@@ -71,6 +71,7 @@ func gohandleListenerMulti(l net.Listener, ptrcarr *[]net.Conn){
 					break
 				}
 			}
+			dobreak=(dobreak||(len(*ptrcarr)==0))
 			if !dobreak {
 				
 				*ptrcarr = append(*ptrcarr,conn)
