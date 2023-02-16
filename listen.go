@@ -9,12 +9,8 @@ import (
 
 
 var cinput net.Conn
-var coutput net.Conn
-var coverride net.Conn
-var started=false
-var prefix=""
-var S_TMPBUF=1
-var tmpbuf []byte
+var cout net.Conn
+var coutputs []net.Conn
 
 func gohandleListener(l net.Listener, ptrc *net.Conn){
 	for {
@@ -25,6 +21,26 @@ func gohandleListener(l net.Listener, ptrc *net.Conn){
 				*ptrc = conn
 				fmt.Println(prefix+"got conn")
 			}
+		}
+	}
+}
+func gohandleListenerMulti(l net.Listener, ptrcarr *[]net.Conn){
+	for {
+		conn, err := l.Accept()
+		//started=true
+		if err == nil {
+			dobreak:=false
+			for i:=0; i<len(*ptrcarr); i++ {
+				if *ptrcarr[i] == nil {
+					*ptrcarr[i] = conn
+					dobreak=true
+					break
+				}
+			}
+			if !dobreak {
+				*ptrcarr = append(*ptrcarr,conn)
+			}
+			fmt.Println(prefix+"got new multi conn")
 		}
 	}
 }
@@ -51,53 +67,26 @@ func handleOut(){
 			dobreak:=false
 			var err error
 			for {
-				if coverride != nil{
-					_, err = cinput.Read(tmpbuf) //continue default stream read 
-					if err != nil {
-						cinput.Close()
-						cinput=nil
-						fmt.Println(prefix+"Input Closed")
-						coutput.Close()
-						coutput=nil
-						fmt.Println(prefix+"Output Closed")
-						if coverride != nil {
-							coverride.Close()
-							coverride=nil
-						}
-						dobreak=true
-						err=nil
-					}
-					_, err = coverride.Read(tmpbuf)
-					if err != nil {
-						coverride.Close()
-						coverride=nil
-						fmt.Println(prefix+"Override Closed")
-						dobreak=true
-						err=nil
-					}
-				} else {
-					_, err = cinput.Read(tmpbuf)
-					if err != nil {
-						cinput.Close()
-						cinput=nil
-						fmt.Println(prefix+"Input Closed")
-						dobreak=true
-						err=nil
-					}
-				}
-				_, err = coutput.Write(tmpbuf)
+				_, err = cinput.Read(tmpbuf)
 				if err != nil {
-					coutput.Close()
-					coutput=nil
-					fmt.Println(prefix+"Output Closed")
-					if coverride != nil {
-						coverride.Close()
-						coverride=nil
-					}
 					cinput.Close()
 					cinput=nil
+					fmt.Println(prefix+"Input Closed")
 					dobreak=true
 					err=nil
+				}
+				for i:=0, i<len(coutputs); i++{
+					cout=coutputs[i]
+					_, err = cout.Write(tmpbuf)
+					if err != nil {
+						cout.Close()
+						fmt.Println(prefix+"Output Closed")
+						coutputs[i]=nil
+						//cinput.Close()
+						//cinput=nil
+						//dobreak=true
+						//err=nil
+					}
 				}
 				if dobreak {
 					break
@@ -107,7 +96,13 @@ func handleOut(){
 			//cin.Close()
 			//return
 		}
-		if cinput == nil && coutput == nil && started {
+		//if cinput == nil && coutput == nil && started {
+		if cinput == nil && started {
+			for i:=0, i<len(coutputs); i++{
+				if coutputs[i] != nil {
+					coutputs[i].Close()
+				}
+			}
 			return
 		}
 	}
@@ -118,9 +113,7 @@ func handleOut(){
 func main() {
 	
 	cinput=nil
-	coutput=nil
-	coverride=nil
-	
+	coutputs=make([]net.Conn,0)
 	
 	if len(os.Args) >= 2 {
 		if os.Args[1] != "" {
@@ -143,7 +136,7 @@ func main() {
 		return
 	}
 
-	SockAddr:=mydir + "/"+prefix+"default.in.sock"
+	SockAddr:=mydir + "/"+prefix+"in2m.in.sock"
 	if err := os.RemoveAll(SockAddr); err != nil {
 		panic(err)
 	}
@@ -153,7 +146,7 @@ func main() {
 	}
 	defer ldef.Close()
 
-	SockAddr=mydir + "/"+prefix+"out.sock"
+	SockAddr=mydir + "/"+prefix+"in2m.out.sock"
 	if err := os.RemoveAll(SockAddr); err != nil {
 		panic(err)
 	}
@@ -162,25 +155,12 @@ func main() {
 		fmt.Println("listen error:",err.Error())
 	}
 	defer lout.Close()
-	SockAddr=mydir + "/"+prefix+"overlay.in.sock"
-	if err := os.RemoveAll(SockAddr); err != nil {
-		panic(err)
-	}
-	lovr, err := net.Listen("unix", SockAddr)
-	if err != nil {
-		fmt.Println("listen error:",err.Error())
-	}
-	defer lovr.Close()
-
-
-	go gohandleListener(ldef,&cinput)
-	go gohandleListener(lout,&coutput)
-	go gohandleReplaceListener(lovr,&coverride)
 	
+	go gohandleListener(ldef,&cinput)
+	go gohandleListenerMulti(lout,&coutputs)
 	
 	handleOut()
 	fmt.Println("exit")
-	os.RemoveAll(mydir + "/"+prefix+"default.in.sock")
-	os.RemoveAll(mydir + "/"+prefix+"overlay.in.sock")
-	os.RemoveAll(mydir + "/"+prefix+"out.sock")
+	os.RemoveAll(mydir + "/"+prefix+"in2m.in.sock")
+	os.RemoveAll(mydir + "/"+prefix+"in2m.out.sock")
 }
