@@ -32,10 +32,10 @@ func gohandleListener(l net.Listener, ptrc *net.Conn){
 	}
 }
 
-func goStreamWriter(c *net.Conn,ptrbuf *[]byte){
+func goStreamWriter(c *net.Conn,ptrbuf **[]byte){
 	l_buf:=make([]byte,0)
 	//l_tmpbuf:=make([]byte,0)
-	*ptrbuf=l_buf
+	(*ptrbuf)=&l_buf
 	for {
 		if (*c != nil) && (len(l_buf)>=S_TMPBUF){
 			_,err := (*c).Write(l_buf[:S_TMPBUF])
@@ -67,17 +67,19 @@ func gohandleListenerMulti(l net.Listener, ptrcarr *[]net.Conn){
 			for i=0; i<len(*ptrcarr); i++ {
 				if (*ptrcarr)[i] == nil {
 					(*ptrcarr)[i] = conn
+					fmt.Println(prefix+"got new multi conn")
 					dobreak=true
 					break
 				}
 			}
 			dobreak=(dobreak||(len(*ptrcarr)==0))
 			if !dobreak {
-				
+				outputbufs=append(outputbufs,nil)
 				*ptrcarr = append(*ptrcarr,conn)
-				go goStreamWriter(&(*ptrcarr)[i],outputbufs[i])
+				go goStreamWriter(&(*ptrcarr)[i],&(outputbufs[i]))
+				fmt.Println(prefix+"got new multi conn")
 			}
-			fmt.Println(prefix+"got new multi conn")
+			
 		}
 	}
 }
