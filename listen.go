@@ -114,6 +114,8 @@ func main() {
 	
 	cinput=nil
 	coutputs=make([]net.Conn,0)
+	prefix := ""
+	started := false
 	
 	if len(os.Args) >= 2 {
 		if os.Args[1] != "" {
