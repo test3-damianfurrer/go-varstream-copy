@@ -37,7 +37,7 @@ func goStreamWriter(c *net.Conn,ptrbuf **[]byte){
 	//l_tmpbuf:=make([]byte,0)
 	(*ptrbuf)=&l_buf
 	for {
-		fmt.Println("writebuffer len", len(l_buf))
+		//fmt.Println("writebuffer len", len(l_buf))
 		if (*c != nil) && (len(l_buf)>=S_TMPBUF){
 			_,err := (*c).Write(l_buf[:S_TMPBUF-1])
 			readable=true
@@ -113,6 +113,7 @@ func handleOut(){
 			for {
 				if readable {
 					_, err = cinput.Read(tmpbuf)
+					fmt.Println("after read buf")
 					readable=false
 					if err != nil {
 						cinput.Close()
@@ -122,11 +123,13 @@ func handleOut(){
 						err=nil
 					}
 					for i:=0; i<len(coutputs); i++ {
+						fmt.Println("prc output index: ",i)
 						if coutputs[i] == nil {
 							continue
 						}
 						cbuf:=outputbufs[i]
 						(*cbuf)=append((*cbuf),tmpbuf...)
+						fmt.Println("add tmpbuf to output index: ",i)
 						/*cout=coutputs[i]
 						_, err = cout.Write(tmpbuf)
 						if err != nil {
