@@ -88,7 +88,9 @@ func handleOut(){
 				_, err = coutput.Write(tmpbuf)
 				if err != nil {
 					coutput.Close()
-					coutput=nil
+					if coutput!=nil {
+						coutput=nil //errors
+					}
 					fmt.Println(prefix+"Output Closed")
 					if coverride != nil {
 						coverride.Close()
