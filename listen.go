@@ -60,11 +60,14 @@ func goStreamWriter(c *net.Conn,ptrbuf **[]byte){
 func gohandleListenerMulti(l net.Listener, ptrcarr *[]net.Conn){
 	for {
 		conn, err := l.Accept()
+		fmt.Println(prefix+"accept")
 		//started=true
 		if err == nil {
+			fmt.Println("ptrarr len: ",len((*ptrcarr)))
+			
 			dobreak:=false
 			var i int
-			for i=0; i<len(*ptrcarr); i++ {
+			for i=0; i<len((*ptrcarr)); i++ {
 				if (*ptrcarr)[i] == nil {
 					(*ptrcarr)[i] = conn
 					fmt.Println(prefix+"got new multi conn")
@@ -72,7 +75,7 @@ func gohandleListenerMulti(l net.Listener, ptrcarr *[]net.Conn){
 					break
 				}
 			}
-			dobreak=(dobreak||(len(*ptrcarr)==0))
+			//dobreak=(dobreak||(len(*ptrcarr)==0))
 			if !dobreak {
 				outputbufs=append(outputbufs,nil)
 				*ptrcarr = append(*ptrcarr,conn)
