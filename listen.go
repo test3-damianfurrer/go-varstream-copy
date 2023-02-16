@@ -17,7 +17,7 @@ var started=false
 var prefix=""
 var S_TMPBUF=1
 var tmpbuf []byte
-var readable:=true //to limit read speed to fastest write
+var readable=true //to limit read speed to fastest write
 
 func gohandleListener(l net.Listener, ptrc *net.Conn){
 	for {
