@@ -75,7 +75,7 @@ func handleOut(){
 					dobreak=true
 					err=nil
 				}
-				for i:=0, i<len(coutputs); i++{
+				for i:=0; i<len(coutputs); i++ {
 					cout=coutputs[i]
 					_, err = cout.Write(tmpbuf)
 					if err != nil {
