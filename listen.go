@@ -53,10 +53,10 @@ func goStreamWriter(c *net.Conn,ptrbuf *[]byte,writeble *bool,ddinfo string){
 			}
 			for{
 				if *writeble {
+					*writeble=false
 					break
 				}
 			}
-			*writeble=false
 			*l_buf=(*l_buf)[S_TMPBUF:]
 			*writeble=true
 			readable=true //after assigning. TODO: ensure tmpbuf written to all bufs, before readable + only write in readable false state or smthng. reassigning with cut buf can't collide with a new read
@@ -150,10 +150,10 @@ func handleOut(){
 						cbuf:=outputbufs[i]
 						for{
 							if bufwriteble[i] {
+								bufwriteble[i]=false
 								break
 							}
 						}
-						bufwriteble[i]=false
 						(*cbuf)=append((*cbuf),tmpbuf...)
 						bufwriteble[i]=true
 						fmt.Println("add tmpbuf to output index: ",i,*(outputbufs[i]))
