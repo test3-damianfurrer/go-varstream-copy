@@ -32,7 +32,7 @@ func gohandleListener(l net.Listener, ptrc *net.Conn){
 	}
 }
 
-func goStreamWriter(c *net.Conn,ptrbuf *[]byte){
+func goStreamWriter(c *net.Conn,ptrbuf *[]byte,ddinfo string){
 	//l_buf:=make([]byte,0)
 	//l_tmpbuf:=make([]byte,0)
 	//(*ptrbuf)=&l_buf
@@ -43,8 +43,8 @@ func goStreamWriter(c *net.Conn,ptrbuf *[]byte){
 		
 		blen=len(*l_buf)
 		if (*c != nil) && (blen>=S_TMPBUF){
-			fmt.Println("writebuffer len", len(*l_buf),blen)
-			fmt.Println("writebuffer:",(*l_buf)[:S_TMPBUF])
+			fmt.Println(ddinfo+"writebuffer len", len(*l_buf),blen)
+			fmt.Println(ddinfo+"writebuffer:",(*l_buf)[:S_TMPBUF])
 			_,err := (*c).Write((*l_buf)[:S_TMPBUF])
 			if err != nil {
 				(*c).Close()
@@ -52,7 +52,7 @@ func goStreamWriter(c *net.Conn,ptrbuf *[]byte){
 			}
 			*l_buf=(*l_buf)[S_TMPBUF:]
 			readable=true //after assigning. TODO: ensure tmpbuf written to all bufs, before readable + only write in readable false state or smthng. reassigning with cut buf can't collide with a new read
-			fmt.Println("leftover buf:",(*l_buf))
+			fmt.Println(ddinfo+"leftover buf:",(*l_buf))
 		}
 		if (*c == nil) {
 			break
@@ -91,7 +91,7 @@ func gohandleListenerMulti(l net.Listener, ptrcarr *[]net.Conn){
 				buf:=make([]byte,0)
 				outputbufs=append(outputbufs,&buf) //init buf for worker
 				*ptrcarr = append(*ptrcarr,conn)
-				go goStreamWriter(&(*ptrcarr)[i],outputbufs[i])
+				go goStreamWriter(&(*ptrcarr)[i],outputbufs[i].fmt.Sprintf("%d",i))
 				fmt.Println(prefix+"got new multi conn")
 			}
 			fmt.Println("after ptrarr len: ",len((*ptrcarr)))
