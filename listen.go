@@ -91,7 +91,7 @@ func gohandleListenerMulti(l net.Listener, ptrcarr *[]net.Conn){
 				buf:=make([]byte,0)
 				outputbufs=append(outputbufs,&buf) //init buf for worker
 				*ptrcarr = append(*ptrcarr,conn)
-				go goStreamWriter(&(*ptrcarr)[i],outputbufs[i].fmt.Sprintf("%d",i))
+				go goStreamWriter(&(*ptrcarr)[i],outputbufs[i],fmt.Sprintf("%d",i))
 				fmt.Println(prefix+"got new multi conn")
 			}
 			fmt.Println("after ptrarr len: ",len((*ptrcarr)))
